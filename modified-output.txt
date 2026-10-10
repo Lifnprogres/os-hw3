@@ -1,0 +1,34 @@
+Experiment 1: two threads take two locks in opposite orders
+  T1 holds the lock of account 0 and waits for the lock of account 1
+  T2 holds the lock of account 1 and waits for the lock of account 0
+  deadlock detected: T1 -> T2 -> T1 (each thread waits for a lock the next one holds)
+  recovery: T2 is chosen as the victim (it moves less money, so it is the cheaper one to redo)
+  T1: moved 100 from account 0 to account 1
+  T2: rolled back: released account 1, moved nothing
+  balances [400, 600, 500], total 1500
+
+  Prevention: every thread locks the lower-numbered account first (three threads in a ring)
+  lock-order check: PASS (a transfer from 2 to 0 locks account 0 first, then account 2)
+  60,000 transfers finished, balances [500, 500, 500], total 1500 (started at 1500)
+
+Experiment 2: the banker's algorithm (resource types A, B, C)
+  total [9, 5, 6], free [3, 1, 4]
+  starting state: safe, order P2 P1 P3 P4
+  P3 asks for [2, 0, 2]: granted; a safe order is P2 P3 P1 P4
+  P1 asks for [0, 2, 1]: error: more than its declared claim
+  P1 asks for [0, 1, 1]: refused: the state would be unsafe (the process waits)
+  P4 asks for [2, 0, 2]: must wait: only [1, 1, 2] free
+  P3 finishes and releases [2, 1, 2]
+  P1 asks for [0, 1, 1]: granted; a safe order is P2 P1 P3 P4
+  final free [3, 1, 3]
+
+Experiment 3: placement in 2048 KB, 3000 requests of 10-200 KB (seed 2026)
+  self-check first-fit 55 KB with the pointer at 150 -> hole at 0 (expected 0)
+  self-check best-fit  55 KB with the pointer at 150 -> hole at 800 (expected 800)
+  self-check next-fit  55 KB with the pointer at 150 -> hole at 200 (expected 200)
+  self-check worst-fit 55 KB with the pointer at 150 -> hole at 400 (expected 400)
+  policy     failed  of them fragmented  avg holes  avg hole KB  avg largest KB  holes examined
+  first-fit     965                 931        9.3         49.5           130.0            6.30
+  best-fit      942                 902        9.2         45.9           135.6            9.21
+  next-fit      970                 938        8.8         51.4           128.7            4.76
+  worst-fit    1014                1003        8.7         65.6           119.8            8.75
