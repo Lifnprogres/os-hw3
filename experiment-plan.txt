@@ -1,0 +1,1 @@
+B-g prediction recorded before the modified run: reduce MEMORY_KB from 4096 to 2048. With the same requests and lifetimes, fewer requests should fit and all four policies should fail more often; some failures may now be caused by insufficient total memory, in addition to external fragmentation.
